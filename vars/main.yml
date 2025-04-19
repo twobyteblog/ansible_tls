@@ -1,0 +1,5 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for ansible_tls
+
+temp_dir: 'C:\Windows\Temp'

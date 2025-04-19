@@ -1,0 +1,55 @@
+#SPDX-License-Identifier: MIT-0
+---
+
+## Configures TLS on a Windows-host using IIS Crpyto (https://www.nartac.com/Products/IISCrypto/).
+
+# Copy required files.
+
+- name: 'TLS: Load IIS Crypto to Configure TLS 1.2 SChannels.'
+  ansible.windows.win_copy:
+    src: files/IISCrypto
+    dest: "{{ temp_dir }}"
+
+# Run utility.
+
+- name: 'TLS: Run IIS Crypto.'
+  ansible.windows.win_command:
+    cmd: IISCryptoCli.exe /template template_default.ictpl
+    chdir: '{{ temp_dir }}\IISCrypto'
+
+# Delete utility and configuration file.
+
+- name: 'TLS: Cleanup.'
+  ansible.windows.win_file:
+    path: '{{ temp_dir }}\IISCrypto'
+    state: absent
+
+# Enable TLS 1.2 for .NET Framework.
+
+- name: 'TLS: Enable TLS 1.2 for .NET Framework, 32-bit, Part 1.'
+  ansible.windows.win_regedit:
+    path: 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319'
+    name: SystemDefaultTlsVersions
+    data: 1
+    type: dword
+
+- name: 'TLS: Enable TLS 1.2 for .NET Framework, 32-bit, Part 2.'
+  ansible.windows.win_regedit:
+    path: 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319'
+    name: SchUseStrongCrypto
+    data: 1
+    type: dword
+
+- name: 'TLS: Enable TLS 1.2 for .NET Framework, 64-bit, Part 1.'
+  ansible.windows.win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319'
+    name: SystemDefaultTlsVersions
+    data: 1
+    type: dword
+
+- name: 'TLS: Enable TLS 1.2 for .NET Framework, 64-bit, Part 2.'
+  ansible.windows.win_regedit:
+    path: 'HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319'
+    name: SchUseStrongCrypto
+    data: 1
+    type: dword
